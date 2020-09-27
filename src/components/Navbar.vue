@@ -1,5 +1,5 @@
 <template>
-  <div id="nav" class="flex flex-row bg-gray-200 mb-2">
+  <div id="nav" class="flex flex-row bg-gray-200 mb-2 py-2 text-black">
     <router-link to="/" class="mx-2">PoE Guild Logs</router-link> |
     <router-link to="/about" class="mx-2">About</router-link>
   </div>
@@ -9,4 +9,4 @@
 export default {};
 </script>
 
-<style></style>
+<style lang="sass"></style>

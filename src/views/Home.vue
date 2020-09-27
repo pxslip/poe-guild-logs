@@ -19,7 +19,7 @@
               d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <input type="text" class="border rounded mx-2 border-gray-700 p-1" v-model="sessionId"
+          <input type="text" class="block border rounded border-gray-700 p-1 w-full lg:w-auto" v-model="sessionId"
         /></label>
         <label class="mx-2"
           >Guild ID
@@ -37,12 +37,13 @@
               d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <input type="text" class="border rounded mx-2 border-gray-700 p-1" v-model="guildId"
+          <input type="text" class="block border rounded border-gray-700 p-1 w-full lg:w-auto" v-model="guildId"
         /></label>
-        <label class="mx-2"
-          >After Date/Time<input class="border rounded border-gray-700 p-1" type="datetime-local" v-model="from"
-        /></label>
-        <button type="button" class="border rounded border-gray-700 bg-gray-500 p-1" @click="load">
+        <button
+          type="button"
+          class="border rounded border-gray-700 bg-gray-300 text-gray-900 hover:border-gray-900 hover:bg-gray-700 hover:text-gray-200 p-1 mx-2 w-auto lg:mt-6 mt-2"
+          @click="load"
+        >
           Load Logs
         </button>
       </div>
@@ -53,7 +54,11 @@
       <div class="flex flex-col lg:flex-row">
         <label class="mx-2"
           >Search
-          <input type="text" v-model="searchText" class="block border border-gray-700 rounded py-2 px-1" />
+          <input
+            type="text"
+            v-model="searchText"
+            class="block border border-gray-700 rounded py-2 px-1 w-full lg:w-auto"
+          />
         </label>
         <label class="mx-2"
           >Player
