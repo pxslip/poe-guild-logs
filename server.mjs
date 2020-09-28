@@ -26,17 +26,19 @@ const endpoints = {
     return response.data.entries;
   },
 };
-
-app.use(express.static(path.join(__dirname, 'dist')));
-app.use('/', history());
-
-const port = process.env.PORT || 3000;
-
 app.get('/proxy/:endpoint', async (req, res) => {
   const data = await endpoints[req.params.endpoint](req.query);
   return res.json(data);
 });
+app.use(
+  '/',
+  history({
+    verbose: true,
+  }),
+);
+app.use('/', express.static(path.join(__dirname, 'dist')));
 
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   if (process.env.NODE_ENV !== 'PROD') {
     console.log(`listening on ${port}`);
