@@ -63,7 +63,7 @@
           <span v-if="!loading">Load Logs</span>
           <svg
             v-if="loading"
-            class="animate-spin h-5 w-5"
+            class="animate-spin h-5 w-5 mx-auto"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -136,6 +136,16 @@
           <div class="flex-1">{{ toDateTimeStringFromEpoch(log.time) }}</div>
         </li>
       </ul>
+      <button
+        v-if="hasMore"
+        :disabled="canLoadMore"
+        class="w-full border rounded border-gray-700 bg-gray-300 text-gray-900 hover:border-gray-900 hover:bg-gray-700 hover:text-gray-200 p-2 mx-2 lg:mt-6 mt-2"
+      >
+        <template v-if="canLoadMore">
+          Load More Records
+        </template>
+        <template v-else> Currently Rate Limited, Please Wait {{ this.waitTimeLeft }}s </template>
+      </button>
     </section>
   </div>
 </template>
@@ -157,6 +167,10 @@ export default {
       searchText: '',
       daysBack: 5,
       loading: false,
+      truncated: false,
+      lastTime: null,
+      waitUntil: null,
+      waitTimeLeft: null,
     };
   },
   methods: {
@@ -168,13 +182,20 @@ export default {
           sessionId: this.sessionId,
           days: this.daysBack,
         };
-        if (this.from !== null) {
-          params.from = Date.parse(this.from) / 1000;
+        if (this.lastTime !== null) {
+          params.startTime = this.lastTime;
         }
         const response = await axios.get('/proxy/guild-logs', {
           params: params,
         });
-        this.logs = response.data.length ? response.data : [];
+        this.logs = this.logs.concat(response.data.entries);
+        this.lastTime = response.data.lastTime ?? null;
+        if (response.data.waitUntil) {
+          this.waitUntil = response.data.waitUntil;
+          this.startUpdatingWaitTimeLeft();
+        } else {
+          this.waitUntil = null;
+        }
       } catch (exc) {
         console.log(exc);
         this.$emit(
@@ -187,6 +208,17 @@ export default {
     toDateTimeStringFromEpoch(ts) {
       const date = new Date(ts * 1000);
       return date.toLocaleString();
+    },
+    startUpdatingWaitTimeLeft() {
+      const intervalId = setInterval(() => {
+        this.$nextTick(() => {
+          const timeLeft = (this.waitUntil - Date.now()) * 1000;
+          this.waitTimeLeft = timeLeft < 0 ? 0 : timeLeft;
+          if (timeLeft < 0) {
+            clearInterval(intervalId);
+          }
+        });
+      }, 1000);
     },
   },
   computed: {
@@ -232,6 +264,12 @@ export default {
         return keep;
       });
     },
+    hasMore() {
+      return this.lastTime && this.waitUntil;
+    },
+    canLoadMore() {
+      return Date.now() > this.waitUntil;
+    },
   },
 };
 </script>
@@ -240,6 +278,6 @@ export default {
 @tailwind utilities;
 @import '~vue-multiselect/dist/vue-multiselect.min.css';
 ::v-deep .multiselect__tags {
-  border-color: theme('colors.gray.700');
+  @apply border-gray-700;
 }
 </style>

@@ -38,7 +38,16 @@ const endpoints = {
           map.set(entry.id, entry);
         });
         if (current >= maxLoops || entries.length < 1 || entries[entries.length - 1].time <= end) {
-          resolve(Array.from(map.values()));
+          const resp = {
+            entries: Array.from(map.values()),
+          };
+          if (current >= maxLoops) {
+            resp = Object.assign(resp, {
+              lastTime: entries.length < 1 ? from : entries[entries.length - 1].time,
+              waitUntil: Date.now() + 60 * 1000,
+            });
+          }
+          resolve(resp);
           clearInterval(intervalId);
         } else {
           from = entries[entries.length - 1].time;
@@ -50,7 +59,6 @@ const endpoints = {
 };
 app.get('/proxy/:endpoint', async (req, res) => {
   endpoints[req.params.endpoint](req.query).then(map => {
-    console.log(map);
     return res.json(map);
   });
 });
