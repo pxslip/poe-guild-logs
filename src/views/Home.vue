@@ -3,8 +3,8 @@
     <section class="">
       <h2>Initial Log Load Information</h2>
       <div class="flex flex-col lg:flex-row">
-        <label class="mx-2"
-          >POESESSID
+        <label class="mx-2 flex-1">
+          POESESSID
           <a href="https://github.com/pxslip/poe-guild-logs/wiki/Getting-Your-PoE-Session-ID" target="_blank">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -21,10 +21,10 @@
               />
             </svg>
           </a>
-          <input type="text" class="block border rounded border-gray-700 p-1 w-full lg:w-auto" v-model="sessionId"
-        /></label>
-        <label class="mx-2"
-          >Guild ID
+          <input type="text" class="block border rounded border-gray-700 p-2 w-full" v-model="sessionId" />
+        </label>
+        <label class="mx-2 flex-1">
+          Guild ID
           <a href="https://github.com/pxslip/poe-guild-logs/wiki/Getting-your-Guild-ID" target="_blank">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -38,13 +38,25 @@
                 stroke-linejoin="round"
                 stroke-width="2"
                 d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              /></svg
-          ></a>
-          <input type="text" class="block border rounded border-gray-700 p-1 w-full lg:w-auto" v-model="guildId"
-        /></label>
+              />
+            </svg>
+          </a>
+          <input type="text" class="block border rounded border-gray-700 p-2 w-full" v-model="guildId" />
+        </label>
+        <label class="mx-2 flex-1">
+          Days Back (More Days = Longer Loads)
+          <input
+            type="number"
+            min="1"
+            max="30"
+            step="1"
+            v-model="daysBack"
+            class="block border rounded border-gray-700 p-2 w-full"
+          />
+        </label>
         <button
           type="button"
-          class="border rounded border-gray-700 bg-gray-300 text-gray-900 hover:border-gray-900 hover:bg-gray-700 hover:text-gray-200 p-1 mx-2 w-auto lg:mt-6 mt-2"
+          class="border rounded border-gray-700 bg-gray-300 text-gray-900 hover:border-gray-900 hover:bg-gray-700 hover:text-gray-200 p-2 mx-2 w-auto lg:mt-6 mt-2 flex-1"
           :disabled="loading"
           @click="load"
         >
@@ -61,7 +73,7 @@
               class="opacity-75"
               fill="currentColor"
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
+            />
           </svg>
         </button>
       </div>
@@ -70,15 +82,11 @@
     <section class="filters">
       <h2>Filter Logs</h2>
       <div class="flex flex-col lg:flex-row">
-        <label class="mx-2"
+        <label class="mx-2 flex-1"
           >Search
-          <input
-            type="text"
-            v-model="searchText"
-            class="block border border-gray-700 rounded py-2 px-1 w-full lg:w-auto"
-          />
+          <input type="text" v-model="searchText" class="block border border-gray-700 rounded p-2 w-full" />
         </label>
-        <label class="mx-2"
+        <label class="mx-2 flex-1"
           >Player
           <vue-multiselect
             class="inline-block"
@@ -87,7 +95,7 @@
             :multiple="true"
           ></vue-multiselect
         ></label>
-        <label class="mx-2"
+        <label class="mx-2 flex-1"
           >Action
           <vue-multiselect
             class="inline-block"
@@ -96,7 +104,7 @@
             :multiple="true"
           ></vue-multiselect
         ></label>
-        <label class="mx-2"
+        <label class="mx-2 flex-1"
           >Item
           <vue-multiselect
             class="inline-block"
@@ -111,17 +119,21 @@
     <section class="output">
       <div></div>
       <ul>
-        <li class="flex flex-row xs:flex-col border-b-2 border-gray-700s mb-2">
-          <div class="mr-4 w-1/5">Player</div>
-          <div class="mr-4 w-1/5">Action</div>
-          <div class="mr-4 w-1/5">Item</div>
-          <div class="">Time</div>
+        <li class="flex flex-col lg:flex-row border-b-2 border-gray-700 py-2">
+          <div class="mr-4 flex-1">Player</div>
+          <div class="mr-4 flex-1">Action</div>
+          <div class="mr-4 flex-1">Item</div>
+          <div class="flex-1">Time</div>
         </li>
-        <li v-for="log in filteredLogs" :key="log.id" class="flex flex-row xs:flex-col mb-2">
-          <div class="mr-4 w-1/5">{{ log.account.name }}</div>
-          <div class="mr-4 w-1/5">{{ log.action }}</div>
-          <div class="mr-4 w-1/5">{{ log.item }}</div>
-          <div class="">{{ toDateTimeStringFromEpoch(log.time) }}</div>
+        <li
+          v-for="(log, index) in filteredLogs"
+          :key="log.id"
+          :class="['flex', 'flex-col', 'lg:flex-row', 'py-2', { 'bg-gray-100': index % 2 === 0 }]"
+        >
+          <div class="mr-4 flex-1">{{ log.account.name }}</div>
+          <div class="mr-4 flex-1">{{ log.action }}</div>
+          <div class="mr-4 flex-1">{{ log.item }}</div>
+          <div class="flex-1">{{ toDateTimeStringFromEpoch(log.time) }}</div>
         </li>
       </ul>
     </section>
@@ -143,7 +155,7 @@ export default {
       itemFilters: [],
       actionFilters: [],
       searchText: '',
-      from: null,
+      daysBack: 5,
       loading: false,
     };
   },
@@ -154,6 +166,7 @@ export default {
         const params = {
           guildId: this.guildId,
           sessionId: this.sessionId,
+          days: this.daysBack,
         };
         if (this.from !== null) {
           params.from = Date.parse(this.from) / 1000;
@@ -161,7 +174,7 @@ export default {
         const response = await axios.get('/proxy/guild-logs', {
           params: params,
         });
-        this.logs = response.data;
+        this.logs = response.data.length ? response.data : [];
       } catch (exc) {
         console.log(exc);
         this.$emit(
@@ -224,8 +237,9 @@ export default {
 </script>
 
 <style scoped>
+@tailwind utilities;
 @import '~vue-multiselect/dist/vue-multiselect.min.css';
-.multiselect__tags {
+::v-deep .multiselect__tags {
   border-color: theme('colors.gray.700');
 }
 </style>
