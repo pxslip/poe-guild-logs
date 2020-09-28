@@ -1,5 +1,5 @@
 import express from 'express';
-import path from 'path';
+import path, { resolve } from 'path';
 import axios from 'axios';
 import history from 'connect-history-api-fallback';
 
@@ -13,22 +13,46 @@ const app = express();
 
 const endpoints = {
   async 'guild-logs'(queries) {
-    const params = {};
-    if (queries.from !== '0') {
-      params.from = queries.from;
-    }
-    const response = await api.get(`/guild/${queries.guildId}/stash/history`, {
-      headers: {
-        Cookie: `POESESSID=${queries.sessionId};`,
-      },
-      params: params,
+    return await new Promise(resolve => {
+      const end = parseInt(queries.days) * 24 * 60 * 60;
+      const map = new Map();
+      let from = false;
+      const maxLoops = 30;
+      let current = 1;
+      const intervalId = setInterval(async () => {
+        const params = {};
+        if (from !== false) {
+          params.from = from;
+        }
+        const response = await api.get(`/guild/${queries.guildId}/stash/history`, {
+          headers: {
+            Cookie: `POESESSID=${queries.sessionId};`,
+          },
+          params: params,
+        });
+        if (response.status === 429) {
+          resolve(Array.from(map.values()));
+        }
+        const entries = response.data.entries;
+        entries.forEach(entry => {
+          map.set(entry.id, entry);
+        });
+        if (current >= maxLoops || entries.length < 1 || entries[entries.length - 1].time <= end) {
+          resolve(Array.from(map.values()));
+          clearInterval(intervalId);
+        } else {
+          from = entries[entries.length - 1].time;
+        }
+        current++;
+      }, 100);
     });
-    return response.data.entries;
   },
 };
 app.get('/proxy/:endpoint', async (req, res) => {
-  const data = await endpoints[req.params.endpoint](req.query);
-  return res.json(data);
+  endpoints[req.params.endpoint](req.query).then(map => {
+    console.log(map);
+    return res.json(map);
+  });
 });
 app.use(
   '/',
