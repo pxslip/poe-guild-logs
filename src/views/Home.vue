@@ -161,7 +161,7 @@ export default {
         const response = await axios.get('/proxy/guild-logs', {
           params: params,
         });
-        this.logs = this.filteredLogs = response.data;
+        this.logs = response.data;
       } catch (exc) {
         console.log(exc);
         this.$emit(
@@ -223,6 +223,9 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 @import '~vue-multiselect/dist/vue-multiselect.min.css';
+.multiselect__tags {
+  border-color: theme('colors.gray.700');
+}
 </style>
