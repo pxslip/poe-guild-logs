@@ -4,7 +4,6 @@
     <router-link to="/about" class="mx-2">About</router-link>
     <a href="https://github.com/pxslip/poe-guild-logs" class="ml-auto">
       <img src="../assets/github.png" class="ml-auto mr-2" />
-      GitHub
     </a>
   </div>
 </template>
