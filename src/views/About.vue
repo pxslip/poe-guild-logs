@@ -1,6 +1,6 @@
 <template>
   <div class="about">
-    <h1>PoE Guild Logs</h1>
+    <h1 class="text-2xl mb-2">PoE Guild Logs</h1>
     <p>
       PoE Guild Logs is an open source tool for Guild Officers who need to quickly review guild logs to identify issues
       with guild members.
