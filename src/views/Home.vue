@@ -183,8 +183,11 @@ export default {
     filteredLogs() {
       return this.logs.filter(logObj => {
         let keep = true;
-        if (this.searchText.length > 3) {
-          keep = keep && (logObj.account.name.includes(this.searchText) || logObj.item.includes(this.searchText));
+        if (this.searchText.length > 2) {
+          const lcSearch = this.searchText.toLowerCase();
+          keep =
+            keep &&
+            (logObj.account.name.toLowerCase().includes(lcSearch) || logObj.item.toLowerCase().includes(lcSearch));
         }
         if (this.playerFilters.length > 0) {
           keep = keep && this.playerFilters.includes(logObj.account.name);
