@@ -56,7 +56,7 @@
         </label>
         <button
           type="button"
-          class="border rounded border-gray-700 bg-gray-300 text-gray-900 hover:border-gray-900 hover:bg-gray-700 hover:text-gray-200 p-2 mx-2 w-auto lg:mt-6 mt-2 flex-1"
+          class="border rounded border-gray-700 bg-gray-300 text-gray-900 hover:border-gray-900 hover:bg-gray-700 hover:text-gray-200 mx-2 w-auto lg:mt-6 mt-2 flex-1"
           :disabled="loading"
           @click="load"
         >
@@ -246,7 +246,7 @@ export default {
     filteredLogs() {
       return this.logs.filter(logObj => {
         let keep = true;
-        if (this.searchText.length > 2) {
+        if (this.searchText.length > 0) {
           const lcSearch = this.searchText.toLowerCase();
           keep =
             keep &&
