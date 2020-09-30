@@ -138,7 +138,7 @@
       </ul>
       <button
         v-if="hasMore"
-        :disabled="canLoadMore"
+        :disabled="!canLoadMore"
         class="w-full border rounded border-gray-700 bg-gray-300 text-gray-900 hover:border-gray-900 hover:bg-gray-700 hover:text-gray-200 p-2 mx-2 lg:mt-6 mt-2"
         @click="load(false)"
       >
