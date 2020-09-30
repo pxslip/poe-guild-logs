@@ -58,7 +58,7 @@
           type="button"
           class="border rounded border-gray-700 bg-gray-300 text-gray-900 hover:border-gray-900 hover:bg-gray-700 hover:text-gray-200 mx-2 w-auto lg:mt-6 mt-2 flex-1"
           :disabled="loading"
-          @click="load"
+          @click="load(true)"
         >
           <span v-if="!loading">Load Logs</span>
           <svg
@@ -86,7 +86,7 @@
           >Search
           <input type="text" v-model="searchText" class="block border border-gray-700 rounded p-2 w-full" />
         </label>
-        <label class="mx-2 flex-1"
+        <label class="mx-2 flex-1 multiselect-label"
           >Player
           <vue-multiselect
             class="inline-block"
@@ -140,11 +140,28 @@
         v-if="hasMore"
         :disabled="canLoadMore"
         class="w-full border rounded border-gray-700 bg-gray-300 text-gray-900 hover:border-gray-900 hover:bg-gray-700 hover:text-gray-200 p-2 mx-2 lg:mt-6 mt-2"
+        @click="load(false)"
       >
-        <template v-if="canLoadMore">
-          Load More Records
+        <template v-if="!loading">
+          <template v-if="canLoadMore">
+            Load More Records
+          </template>
+          <template v-else> Currently Rate Limited, Please Wait {{ this.waitTimeLeft }}s </template>
         </template>
-        <template v-else> Currently Rate Limited, Please Wait {{ this.waitTimeLeft }}s </template>
+        <svg
+          v-else
+          class="animate-spin h-5 w-5 mx-auto"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
+        </svg>
       </button>
     </section>
   </div>
@@ -171,10 +188,11 @@ export default {
       lastTime: null,
       waitUntil: null,
       waitTimeLeft: null,
+      canLoadMore: true,
     };
   },
   methods: {
-    async load() {
+    async load(clean) {
       this.loading = true;
       try {
         const params = {
@@ -188,10 +206,15 @@ export default {
         const response = await axios.get('/proxy/guild-logs', {
           params: params,
         });
-        this.logs = this.logs.concat(response.data.entries);
+        if (clean) {
+          this.logs = response.data.entries;
+        } else {
+          this.logs = this.logs.concat(response.data.entries);
+        }
         this.lastTime = response.data.lastTime ?? null;
         if (response.data.waitUntil) {
           this.waitUntil = response.data.waitUntil;
+          this.canLoadMore = false;
           this.startUpdatingWaitTimeLeft();
         } else {
           this.waitUntil = null;
@@ -212,9 +235,10 @@ export default {
     startUpdatingWaitTimeLeft() {
       const intervalId = setInterval(() => {
         this.$nextTick(() => {
-          const timeLeft = (this.waitUntil - Date.now()) * 1000;
+          const timeLeft = Math.ceil(this.waitUntil / 1000) - Math.ceil(Date.now() / 1000);
           this.waitTimeLeft = timeLeft < 0 ? 0 : timeLeft;
           if (timeLeft < 0) {
+            this.canLoadMore = true;
             clearInterval(intervalId);
           }
         });
@@ -266,9 +290,6 @@ export default {
     },
     hasMore() {
       return this.lastTime && this.waitUntil;
-    },
-    canLoadMore() {
-      return Date.now() > this.waitUntil;
     },
   },
 };
