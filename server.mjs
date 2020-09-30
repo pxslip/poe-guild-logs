@@ -57,13 +57,13 @@ const endpoints = {
             const resp = {
               entries: Array.from(map.values()),
               lastTime: entries.length < 1 ? from : entries[entries.length - 1].time,
-              waitUntil: Date.now() + parseInt(error.response.headers['x-rate-limit-wait'], 10) * 1000,
+              waitUntil: Date.now() + parseInt(error.response.headers['retry-after'], 10) * 1000,
             };
             resolve(resp);
           }
         }
         current++;
-      }, 1000);
+      }, 500);
     });
   },
 };
