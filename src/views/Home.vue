@@ -162,6 +162,7 @@ export default {
       waitTimeLeft: null,
       canLoadMore: true,
       noneFound: false,
+      countdownIntervalId: null,
     };
   },
   methods: {
@@ -211,13 +212,13 @@ export default {
       return date.toLocaleString();
     },
     startUpdatingWaitTimeLeft() {
-      const intervalId = setInterval(() => {
+      this.countdownIntervalId = setInterval(() => {
         this.$nextTick(() => {
           const timeLeft = Math.ceil(this.waitUntil / 1000) - Math.ceil(Date.now() / 1000);
           this.waitTimeLeft = timeLeft < 0 ? 0 : timeLeft;
           if (timeLeft < 0) {
             this.canLoadMore = true;
-            clearInterval(intervalId);
+            clearInterval(this.countdownIntervalId);
           }
         });
       }, 1000);
@@ -226,8 +227,9 @@ export default {
       event.preventDefault();
       const text = await event.dataTransfer.files[0].text();
       const json = JSON.parse(text);
+      this.lastTime = null;
+      this.waitUntil = null;
       this.logs = json.entries;
-      this.hasMore = false;
     },
   },
   computed: {
