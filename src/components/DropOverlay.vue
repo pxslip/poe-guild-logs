@@ -1,12 +1,5 @@
 <template>
-  <div
-    class="overlay h-screen"
-    @dragover="dragStart"
-    @dragstart="dragStart"
-    @drop="drop"
-    @dragend="dragEnd"
-    @dragleave="dragEnd"
-  >
+  <div class="overlay h-screen" @dragover.capture="dragStart" @drop.capture="drop" @dragleave.capture="dragEnd">
     <div :class="[{ 'opacity-25': shown }]">
       <slot></slot>
     </div>
@@ -29,15 +22,21 @@ export default {
     drop(event) {
       event.preventDefault();
       this.$emit('drop', event);
-      this.shown = false;
+      if (this.shown) {
+        this.shown = false;
+      }
     },
     dragStart(event) {
       event.preventDefault();
-      this.shown = true;
+      if (!this.shown) {
+        this.shown = true;
+      }
     },
     dragEnd(event) {
       event.preventDefault();
-      this.shown = false;
+      if (this.shown) {
+        this.shown = false;
+      }
     },
   },
 };
