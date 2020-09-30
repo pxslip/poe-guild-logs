@@ -46,11 +46,13 @@
       <hr class="my-4" />
       <section class="filters">
         <h2 class="text-xl">Filter Logs</h2>
-        <div class="flex flex-col lg:flex-row">
-          <label class="mx-2 flex-1"
+        <div>
+          <label class="block m-2"
             >Search
             <input type="text" v-model="searchText" class="block border border-gray-700 rounded p-2 w-full" />
           </label>
+        </div>
+        <div class="flex flex-col lg:flex-row">
           <label class="mx-2 flex-1 multiselect-label"
             >Player
             <vue-multiselect
@@ -78,6 +80,15 @@
               :multiple="true"
             ></vue-multiselect
           ></label>
+          <label class="mx-2 flex-1"
+            >League
+            <vue-multiselect
+              class="inline-block"
+              :options="uniqueLeagues"
+              v-model="leagueFilters"
+              :multiple="true"
+            ></vue-multiselect
+          ></label>
         </div>
       </section>
       <hr class="my-4" />
@@ -90,6 +101,7 @@
             <div class="mr-4 flex-1">Player</div>
             <div class="mr-4 flex-1">Action</div>
             <div class="mr-4 flex-1">Item</div>
+            <div class="mr-4 flex-1">League</div>
             <div class="flex-1">Time</div>
           </li>
           <li
@@ -100,6 +112,7 @@
             <div class="mr-4 flex-1">{{ log.account.name }}</div>
             <div class="mr-4 flex-1">{{ log.action }}</div>
             <div class="mr-4 flex-1">{{ log.item }}</div>
+            <div class="mr-4 flex-1">{{ log.league }}</div>
             <div class="flex-1">{{ toDateTimeStringFromEpoch(log.time) }}</div>
           </li>
         </ul>
@@ -139,6 +152,7 @@ export default {
       playerFilters: [],
       itemFilters: [],
       actionFilters: [],
+      leagueFilters: [],
       searchText: '',
       daysBack: 5,
       loading: false,
@@ -237,6 +251,13 @@ export default {
       });
       return Array.from(items);
     },
+    uniqueLeagues() {
+      const items = new Set();
+      this.filteredLogs.forEach(item => {
+        items.add(item.league);
+      });
+      return Array.from(items);
+    },
     filteredLogs() {
       return this.logs.filter(logObj => {
         let keep = true;
@@ -254,6 +275,9 @@ export default {
         }
         if (this.actionFilters.length > 0) {
           keep = keep && this.actionFilters.includes(logObj.action);
+        }
+        if (this.leagueFilters.length > 0) {
+          keep = keep && this.leagueFilters.includes(logObj.league);
         }
         return keep;
       });
