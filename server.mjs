@@ -14,46 +14,56 @@ const app = express();
 const endpoints = {
   async 'guild-logs'(queries) {
     return await new Promise(resolve => {
-      const end = parseInt(queries.days) * 24 * 60 * 60;
+      const end = (Date.now() + parseInt(queries.days) * 24 * 60 * 60 * 1000) / 1000;
       const map = new Map();
-      let from = false;
+      let from = queries.startTime ? queries.startTime : false;
       const maxLoops = 30;
       let current = 1;
+      let entries = [];
       const intervalId = setInterval(async () => {
-        const params = {};
-        if (from !== false) {
-          params.from = from;
-        }
-        const response = await api.get(`/guild/${queries.guildId}/stash/history`, {
-          headers: {
-            Cookie: `POESESSID=${queries.sessionId};`,
-          },
-          params: params,
-        });
-        if (response.status === 429) {
-          resolve(Array.from(map.values()));
-        }
-        const entries = response.data.entries;
-        entries.forEach(entry => {
-          map.set(entry.id, entry);
-        });
-        if (current >= maxLoops || entries.length < 1 || entries[entries.length - 1].time <= end) {
-          const resp = {
-            entries: Array.from(map.values()),
-          };
-          if (current >= maxLoops) {
-            resp = Object.assign(resp, {
-              lastTime: entries.length < 1 ? from : entries[entries.length - 1].time,
-              waitUntil: Date.now() + 60 * 1000,
-            });
+        try {
+          const params = {};
+          if (from !== false) {
+            params.from = from;
           }
-          resolve(resp);
+          const response = await api.get(`/guild/${queries.guildId}/stash/history`, {
+            headers: {
+              Cookie: `POESESSID=${queries.sessionId};`,
+            },
+            params: params,
+          });
+          entries = response.data.entries;
+          entries.forEach(entry => {
+            map.set(entry.id, entry);
+          });
+          if (current >= maxLoops || entries.length < 1 || entries[entries.length - 1].time > end) {
+            let resp = {
+              entries: Array.from(map.values()),
+            };
+            if (current >= maxLoops) {
+              resp = Object.assign(resp, {
+                lastTime: entries.length < 1 ? from : entries[entries.length - 1].time,
+                waitUntil: Date.now() + 60 * 1000,
+              });
+            }
+            clearInterval(intervalId);
+            resolve(resp);
+          } else {
+            from = entries[entries.length - 1].time;
+          }
+        } catch (error) {
           clearInterval(intervalId);
-        } else {
-          from = entries[entries.length - 1].time;
+          if (error.response.status === 429) {
+            const resp = {
+              entries: Array.from(map.values()),
+              lastTime: entries.length < 1 ? from : entries[entries.length - 1].time,
+              waitUntil: Date.now() + parseInt(error.response.headers['x-rate-limit-wait'], 10) * 1000,
+            };
+            resolve(resp);
+          }
         }
         current++;
-      }, 100);
+      }, 1000);
     });
   },
 };
