@@ -227,6 +227,7 @@ export default {
       const text = await event.dataTransfer.files[0].text();
       const json = JSON.parse(text);
       this.logs = json.entries;
+      this.canLoadMore = false;
     },
   },
   computed: {
