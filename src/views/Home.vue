@@ -82,8 +82,10 @@
       </section>
       <hr class="my-4" />
       <section class="output">
-        <div></div>
-        <ul>
+        <p v-if="noneFound" class="font-bold italic text-center text-lg">
+          No Logs Found
+        </p>
+        <ul v-else>
           <li class="flex flex-col lg:flex-row border-b-2 border-gray-700 py-2">
             <div class="mr-4 flex-1">Player</div>
             <div class="mr-4 flex-1">Action</div>
@@ -145,11 +147,13 @@ export default {
       waitUntil: null,
       waitTimeLeft: null,
       canLoadMore: true,
+      noneFound: false,
     };
   },
   methods: {
     async load(clean) {
       this.loading = true;
+      this.noneFound = false;
       try {
         const params = {
           guildId: this.guildId,
@@ -162,10 +166,14 @@ export default {
         const response = await axios.get('/proxy/guild-logs', {
           params: params,
         });
+        const entries = response.data.entries;
+        if (entries.length < 1) {
+          this.noneFound = true;
+        }
         if (clean) {
-          this.logs = response.data.entries;
+          this.logs = entries;
         } else {
-          this.logs = this.logs.concat(response.data.entries);
+          this.logs = this.logs.concat(entries);
         }
         this.lastTime = response.data.lastTime ?? null;
         if (response.data.waitUntil) {

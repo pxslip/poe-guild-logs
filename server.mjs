@@ -3,6 +3,14 @@ import path, { resolve } from 'path';
 import axios from 'axios';
 import history from 'connect-history-api-fallback';
 
+/**
+ * Sleep the event loop for n milliseconds
+ * @param n How long to sleep in milliseconds
+ */
+const sleep = function(n) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, n);
+};
+
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 const api = axios.create({
@@ -13,14 +21,13 @@ const app = express();
 
 const endpoints = {
   async 'guild-logs'(queries) {
-    return await new Promise(resolve => {
-      const end = Date.now() / 1000 - parseInt(queries.days) * 24 * 60 * 60;
+    if (queries.sessionId && queries.guildId) {
+      const end = Date.now() / 1000 - parseInt(queries.days || 5) * 24 * 60 * 60;
       const map = new Map();
       let from = queries.startTime ? queries.startTime : false;
       const maxLoops = 29;
-      let current = 1;
       let entries = [];
-      const intervalId = setInterval(async () => {
+      for (let current = 0; current <= maxLoops; current++) {
         try {
           const params = {};
           if (from !== false) {
@@ -33,6 +40,11 @@ const endpoints = {
             params: params,
           });
           entries = response.data.entries;
+          if (entries.length > 0 && entries[0].time < end) {
+            return {
+              entries: [],
+            };
+          }
           entries.forEach(entry => {
             if (!map.has(entry.id)) {
               map.set(entry.id, entry);
@@ -48,25 +60,25 @@ const endpoints = {
                 waitUntil: Date.now() + 60 * 1000,
               });
             }
-            clearInterval(intervalId);
-            resolve(resp);
+            return resp;
+            break;
           } else {
             from = entries[entries.length - 1].time;
           }
         } catch (error) {
-          clearInterval(intervalId);
           if (error.response.status === 429) {
             const resp = {
               entries: Array.from(map.values()),
               lastTime: entries.length < 1 ? from : entries[entries.length - 1].time,
               waitUntil: Date.now() + parseInt(error.response.headers['retry-after'], 10) * 1000,
             };
-            resolve(resp);
+            return resp;
           }
+          throw error;
         }
-        current++;
-      }, 100);
-    });
+      }
+    }
+    throw new Error('Missing required parameters');
   },
 };
 app.get('/proxy/:endpoint', async (req, res) => {
