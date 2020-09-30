@@ -14,10 +14,10 @@ const app = express();
 const endpoints = {
   async 'guild-logs'(queries) {
     return await new Promise(resolve => {
-      const end = (Date.now() + parseInt(queries.days) * 24 * 60 * 60 * 1000) / 1000;
+      const end = Date.now() / 1000 - parseInt(queries.days) * 24 * 60 * 60;
       const map = new Map();
       let from = queries.startTime ? queries.startTime : false;
-      const maxLoops = 30;
+      const maxLoops = 29;
       let current = 1;
       let entries = [];
       const intervalId = setInterval(async () => {
@@ -34,7 +34,9 @@ const endpoints = {
           });
           entries = response.data.entries;
           entries.forEach(entry => {
-            map.set(entry.id, entry);
+            if (!map.has(entry.id)) {
+              map.set(entry.id, entry);
+            }
           });
           if (current >= maxLoops || entries.length < 1 || entries[entries.length - 1].time > end) {
             let resp = {
@@ -63,7 +65,7 @@ const endpoints = {
           }
         }
         current++;
-      }, 500);
+      }, 100);
     });
   },
 };
