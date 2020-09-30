@@ -50,7 +50,7 @@ const endpoints = {
               map.set(entry.id, entry);
             }
           });
-          if (current >= maxLoops || entries.length < 1 || entries[entries.length - 1].time > end) {
+          if (current >= maxLoops || entries.length < 1 || entries[entries.length - 1].time < end) {
             let resp = {
               entries: Array.from(map.values()),
             };
