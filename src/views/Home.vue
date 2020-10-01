@@ -52,43 +52,47 @@
             <input type="text" v-model="searchText" class="block border border-gray-700 rounded p-2 w-full" />
           </label>
         </div>
-        <div class="flex flex-col lg:flex-row">
-          <label class="mx-2 flex-1 multiselect-label"
-            >Player
+        <div class="flex flex-col lg:flex-row mb-2">
+          <div class="mx-2 flex-1">
+            <label for="player_filter_selector">Player</label>
             <vue-multiselect
+              id="player_filter_selector"
               class="inline-block"
               :options="uniquePlayers"
               v-model="playerFilters"
               :multiple="true"
-            ></vue-multiselect
-          ></label>
-          <label class="mx-2 flex-1"
-            >Action
+            ></vue-multiselect>
+          </div>
+          <div class="mx-2 flex-1">
+            <label for="action_filter_selector">Action</label>
             <vue-multiselect
+              id="action_filter_selector"
               class="inline-block"
               :options="uniqueActions"
               v-model="actionFilters"
               :multiple="true"
-            ></vue-multiselect
-          ></label>
-          <label class="mx-2 flex-1"
-            >Item
+            ></vue-multiselect>
+          </div>
+          <div class="mx-2 flex-1">
+            <label for="item_filter_selector">Item</label>
             <vue-multiselect
+              id="item_filter_selector"
               class="inline-block"
               :options="uniqueItems"
               v-model="itemFilters"
               :multiple="true"
-            ></vue-multiselect
-          ></label>
-          <label class="mx-2 flex-1"
-            >League
+            ></vue-multiselect>
+          </div>
+          <div class="mx-2 flex-1">
+            <label for="league_filter_selector">League</label>
             <vue-multiselect
+              id="league_filter_selector"
               class="inline-block"
               :options="uniqueLeagues"
               v-model="leagueFilters"
               :multiple="true"
-            ></vue-multiselect
-          ></label>
+            ></vue-multiselect>
+          </div>
         </div>
         <div class="flex flex-col lg:flex-row">
           <label class="mx-2 flex-1">
@@ -314,28 +318,28 @@ export default {
   computed: {
     uniquePlayers() {
       const players = new Set();
-      this.filteredLogs.forEach(item => {
+      this.logs.forEach(item => {
         players.add(item.account.name);
       });
       return Array.from(players);
     },
     uniqueActions() {
       const actions = new Set();
-      this.filteredLogs.forEach(item => {
+      this.logs.forEach(item => {
         actions.add(item.action);
       });
       return Array.from(actions);
     },
     uniqueItems() {
       const items = new Set();
-      this.filteredLogs.forEach(item => {
+      this.logs.forEach(item => {
         items.add(item.item);
       });
       return Array.from(items);
     },
     uniqueLeagues() {
       const items = new Set();
-      this.filteredLogs.forEach(item => {
+      this.logs.forEach(item => {
         items.add(item.league);
       });
       return Array.from(items);
