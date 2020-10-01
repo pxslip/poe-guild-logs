@@ -120,7 +120,7 @@
         </p>
         <div class="absolute right-0">
           <button
-            class="w-5 mr-2 border rounded border-gray-400 bg-gray-200 text-gray-900 hover:border-gray-600 hover:bg-gray-400 hover:text-gray-900"
+            class="w-6 mr-2 shadow border rounded border-gray-400 bg-gray-200 text-gray-900 hover:border-gray-600 hover:bg-gray-400 hover:text-gray-900"
             aria-label="Download Filtered Results"
             @click="exportResults"
           >
