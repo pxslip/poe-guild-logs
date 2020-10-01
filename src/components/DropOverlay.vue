@@ -1,5 +1,10 @@
 <template>
-  <div class="overlay h-screen" @dragover.capture="dragStart" @drop.capture="drop" @dragleave.capture="dragEnd">
+  <div
+    :class="['overlay', 'h-screen', { shown: shown }]"
+    @dragover.capture="dragStart"
+    @drop.capture="drop"
+    @dragleave.capture="dragEnd"
+  >
     <div :class="[{ 'opacity-25': shown }]">
       <slot></slot>
     </div>
@@ -42,4 +47,8 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.overlay.shown div {
+  pointer-events: none;
+}
+</style>
